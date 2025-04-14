@@ -2,11 +2,20 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
+
+const ReactConfetti = dynamic(() => import('react-confetti'), {
+  ssr: false
+});
 
 export default function ResultsPage() {
   const router = useRouter();
   const [score, setScore] = useState<{ score: number; totalQuestions: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [windowSize, setWindowSize] = useState({
+    width: typeof window !== 'undefined' ? window.innerWidth : 0,
+    height: typeof window !== 'undefined' ? window.innerHeight : 0,
+  });
 
   useEffect(() => {
     // Get the final score from sessionStorage
@@ -16,6 +25,17 @@ export default function ResultsPage() {
     } else {
       setError('No score found. Please complete the exam first.');
     }
+
+    // Update window size on resize
+    const handleResize = () => {
+      setWindowSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const handleRestart = () => {
@@ -55,9 +75,19 @@ export default function ResultsPage() {
   }
 
   const percentage = Math.round((score.score / score.totalQuestions) * 100);
+  const isPerfectScore = percentage === 100;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
+      {isPerfectScore && (
+        <ReactConfetti
+          width={windowSize.width}
+          height={windowSize.height}
+          recycle={false}
+          numberOfPieces={500}
+          gravity={0.3}
+        />
+      )}
       <div className="bg-white p-8 rounded-lg shadow-md max-w-md w-full">
         <h1 className="text-3xl font-bold text-center text-gray-800 mb-6">Exam Results</h1>
         
