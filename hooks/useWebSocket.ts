@@ -4,11 +4,12 @@ import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 
 interface Question {
-  questionNumber: number;
-  totalQuestions: number;
+  id: string;
   question: string;
   choices: string[];
-  correctAnswer: string;
+  answer: string;
+  questionNumber: number;
+  totalQuestions: number;
 }
 
 interface AnswerResult {
@@ -35,7 +36,8 @@ export function useWebSocket(username: string) {
     if (examCompleted.current) return;
 
     try {
-      const ws = new WebSocket('ws://localhost:3001');
+      const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:3001';
+      const ws = new WebSocket(wsUrl);
 
       ws.onopen = () => {
         console.log('Connected to WebSocket server');
