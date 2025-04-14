@@ -13,11 +13,13 @@ export default function ResultsPage() {
   const [score, setScore] = useState<{ score: number; totalQuestions: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [windowSize, setWindowSize] = useState({
-    width: typeof window !== 'undefined' ? window.innerWidth : 0,
-    height: typeof window !== 'undefined' ? window.innerHeight : 0,
+    width: 0,
+    height: 0,
   });
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     // Get the final score from sessionStorage
     const storedScore = sessionStorage.getItem('finalScore');
     if (storedScore) {
@@ -33,6 +35,9 @@ export default function ResultsPage() {
         height: window.innerHeight,
       });
     };
+
+    // Set initial window size
+    handleResize();
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
@@ -79,7 +84,7 @@ export default function ResultsPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      {isPerfectScore && (
+      {isPerfectScore && isClient && (
         <ReactConfetti
           width={windowSize.width}
           height={windowSize.height}
